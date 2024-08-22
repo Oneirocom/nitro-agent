@@ -2,6 +2,7 @@
   "private": true,
   "scripts": {
     "build": "nitro build",
+    "init": "grimoire init",
     "dev": "nitro dev",
     "prepare": "nitro prepare",
     "preview": "node .output/server/index.mjs"
@@ -11,6 +12,6 @@
   },
   "dependencies": {
     "@keyv/postgres": "^1.4.11",
-    "@magickml/nitro-module": "0.0.11-8"
+    "@magickml/nitro-module": "0.0.12-9"
   }
 }
