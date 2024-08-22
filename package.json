@@ -12,6 +12,6 @@
   },
   "dependencies": {
     "@keyv/postgres": "^1.4.11",
-    "@magickml/nitro-module": "0.0.12-9"
+    "@magickml/nitro-module": "0.0.12-10"
   }
 }
