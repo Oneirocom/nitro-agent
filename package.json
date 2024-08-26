@@ -5,13 +5,16 @@
     "init": "grimoire init",
     "dev": "nitro dev",
     "prepare": "nitro prepare",
-    "preview": "node .output/server/index.mjs"
+    "preview": "node .output/server/index.mjs",
+    "postinstall": "npm run init"
   },
   "devDependencies": {
-    "nitropack": "latest"
+    "nitropack": "latest",
+    "prisma": "^5.18.0"
   },
   "dependencies": {
     "@keyv/postgres": "^1.4.11",
-    "@magickml/nitro-module": "0.0.12-10"
+    "@magickml/nitro-module": "0.0.12-15",
+    "@prisma/client": "^5.18.0"
   }
 }
