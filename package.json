@@ -6,7 +6,9 @@
     "dev": "nitro dev",
     "prepare": "nitro prepare",
     "preview": "node .output/server/index.mjs",
-    "postinstall": "npm run init"
+    "postinstall": "npm run init",
+    "generateClientConfig": "tsx watch --tsconfig ./tsconfig.base.json --clear-screen=false ./scripts/generateClientConfig.ts",
+    "start": "node -r ./global-polyfill.js .output/server/index.mjs"
   },
   "devDependencies": {
     "nitropack": "latest",
