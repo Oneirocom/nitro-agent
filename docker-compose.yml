@@ -1,0 +1,32 @@
+version: "3"
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - redis
+      - db
+    env_file:
+      - .env
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+  db:
+    restart: always
+    image: ankane/pgvector:v0.4.1
+    hostname: magick_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_URL: ${DATABASE_URL}
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
