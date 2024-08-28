@@ -13,14 +13,24 @@ services:
     depends_on:
       - db
     command: >
-      sh -c "
+      bash -c '
         until pg_isready -h db -p 5432; do
-          echo 'Waiting for PostgreSQL to become available...'
+          echo "Waiting for PostgreSQL to become available..."
           sleep 1
         done
-        echo 'PostgreSQL is available'
+        echo "PostgreSQL is available"
+        echo "Running first init script..."
+        npm run init
+        echo "Copying Prisma files..."
+        mkdir -p .output/server/node_modules/@magickml/server-db/src/lib/prisma/client-core/
+        find ./node_modules/@magickml/server-db/src/lib/prisma/client-core/ -type f \( -name "libquery_engine-*" -o -name "schema.prisma" \) -exec cp {} .output/server/node_modules/@magickml/server-db/src/lib/prisma/client-core/ \;
+        echo "Prisma client-core directory contents:"
+        ls -la .output/server/node_modules/@magickml/server-db/src/lib/prisma/client-core/
+        echo "Running second init script..."
+        npm run init
+        echo "Starting application..."
         npm start
-      "
+      '
     env_file:
       - .env
   redis:
