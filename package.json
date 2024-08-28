@@ -1,12 +1,14 @@
 {
   "private": true,
   "scripts": {
-    "build": "nitro build",
+    "build": "npm run init && nitro build",
     "init": "grimoire init",
     "dev": "nitro dev",
     "prepare": "nitro prepare",
     "preview": "node .output/server/index.mjs",
-    "postinstall": "npm run init"
+    "postinstall": "npm run init",
+    "generateClientConfig": "tsx watch --tsconfig ./tsconfig.base.json --clear-screen=false ./scripts/generateClientConfig.ts",
+    "start": "node -r ./global-polyfill.js .output/server/index.mjs"
   },
   "devDependencies": {
     "nitropack": "latest",
@@ -14,7 +16,10 @@
   },
   "dependencies": {
     "@keyv/postgres": "^1.4.11",
-    "@magickml/nitro-module": "0.0.12-15",
+    "@magickml/nitro-module": "0.0.12-22",
     "@prisma/client": "^5.18.0"
+  },
+  "engines": {
+    "node": "18.18.0"
   }
 }

@@ -10,5 +10,9 @@ export default defineNitroConfig({
     LLMProvider: () => {
       console.log("TEST");
     },
+    server: {
+      port: process.env.PORT || 3000,
+      host: "0.0.0.0",
+    },
   },
 });
