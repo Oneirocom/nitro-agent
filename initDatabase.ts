@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client/extension";
 
-export async function initDatabase() {
+async function initDatabase() {
   const prisma = new PrismaClient();
 
   try {
@@ -11,9 +11,25 @@ export async function initDatabase() {
     console.log("Database extensions initialized successfully");
   } catch (error) {
     console.error("Error initializing database extensions:", error);
+    // If the error is due to lack of permissions, log a more helpful message
+    if (error.message.includes("permission denied")) {
+      console.error(
+        "Error: Insufficient permissions to create extensions. Please ensure your database user has the necessary privileges."
+      );
+    }
   } finally {
     await prisma.$disconnect();
   }
 }
+
+// Self-invoking function to run the initialization
+(async () => {
+  try {
+    await initDatabase();
+  } catch (error) {
+    console.error("Failed to initialize database:", error);
+    process.exit(1);
+  }
+})();
 
 export default initDatabase;

@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "build": "npm run init && nitro build",
-    "init": "grimoire init && node -r esbuild-register agent/initDatabase.ts",
+    "init": "grimoire init && ts-node agent/initDatabase.ts",
     "dev": "nitro dev",
     "prepare": "nitro prepare",
     "preview": "node .output/server/index.mjs",
@@ -11,8 +11,10 @@
     "start": "node -r ./global-polyfill.js .output/server/index.mjs"
   },
   "devDependencies": {
+    "esbuild-register": "^3.4.2",
     "nitropack": "latest",
-    "prisma": "^5.18.0"
+    "prisma": "^5.18.0",
+    "ts-node": "^10.9.2"
   },
   "dependencies": {
     "@keyv/postgres": "^1.4.11",
