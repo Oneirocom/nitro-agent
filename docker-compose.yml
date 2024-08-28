@@ -7,9 +7,20 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
-      - redis
       - db
+    command: >
+      sh -c "
+        until pg_isready -h db -p 5432; do
+          echo 'Waiting for PostgreSQL to become available...'
+          sleep 1
+        done
+        echo 'PostgreSQL is available'
+        npm start
+      "
     env_file:
       - .env
   redis:
