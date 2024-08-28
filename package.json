@@ -2,19 +2,21 @@
   "private": true,
   "scripts": {
     "build": "npm run init && nitro build",
-    "init": "ts-node agent/initDatabase.ts && grimoire init",
+    "init": "ts-node -P ./tsconfig.init.json agent/initDatabase.ts && grimoire init",
     "dev": "nitro dev",
     "prepare": "nitro prepare",
     "preview": "node .output/server/index.mjs",
     "postinstall": "npm run init",
     "generateClientConfig": "tsx watch --tsconfig ./tsconfig.base.json --clear-screen=false ./scripts/generateClientConfig.ts",
-    "start": "node -r ./global-polyfill.js .output/server/index.mjs"
+    "start": "node -r ts-node/register -r dotenv/config agent/initDatabase.js && node -r ./global-polyfill.js .output/server/index.mjs"
   },
   "devDependencies": {
     "esbuild-register": "^3.4.2",
     "nitropack": "latest",
     "prisma": "^5.18.0",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.1",
+    "typescript": "^4.5.0",
+    "dotenv": "^10.0.0"
   },
   "dependencies": {
     "@keyv/postgres": "^1.4.11",
