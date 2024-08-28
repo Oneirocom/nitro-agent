@@ -7,12 +7,12 @@ export default defineNitroConfig({
   // modules: [AgentModule],
   runtimeConfig: {
     projectId: "default",
-    LLMProvider: () => {
-      console.log("TEST");
-    },
-    server: {
-      port: process.env.PORT || 3000,
-      host: "0.0.0.0",
-    },
+    // LLMProvider: () => {
+    //   console.log("TEST");
+    // },
+    // server: {
+    //   port: process.env.PORT || 3000,
+    //   host: "0.0.0.0",
+    // },
   },
 });
