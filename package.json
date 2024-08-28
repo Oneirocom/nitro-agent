@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "build": "npm run init && nitro build",
-    "init": "grimoire init",
+    "init": "grimoire init && node -r esbuild-register agent/initDatabase.ts",
     "dev": "nitro dev",
     "prepare": "nitro prepare",
     "preview": "node .output/server/index.mjs",
