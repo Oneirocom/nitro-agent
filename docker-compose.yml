@@ -11,7 +11,6 @@ services:
       - REDIS_URL=${REDIS_URL}
       - AGENT_EMBEDDER_API_KEY=${AGENT_EMBEDDER_API_KEY}
       - NEXT_PUBLIC_EMBEDDER_SERVER_URL=${NEXT_PUBLIC_EMBEDDER_SERVER_URL}
-      - API_ACCESS_KEY=${API_ACCESS_KEY}
     command: >
       bash -c '
         echo "Running init script..."
