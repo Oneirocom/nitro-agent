@@ -10,13 +10,6 @@ COPY package*.json ./
 # Install dependencies (this will also run the postinstall script)
 RUN npm install
 
-# Copy wait-for-it script
-COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
-RUN chmod +x /usr/local/bin/wait-for-it.sh
-
-# Install PostgreSQL client
-RUN apt-get update && apt-get install -y postgresql-client
-
 # Copy the polyfill file
 COPY global-polyfill.js ./
 
@@ -39,10 +32,3 @@ EXPOSE 3000
 
 # Command to run the application with the polyfill
 CMD ["npm", "start"]
-
-# cp ./node_modules/@magickml/server-db/src/lib/prisma/client-core/libquery_engine-linux-arm64-openssl-3.0.x.so.node .output/server/node_modules/@magickml/server-db/src/lib/prisma/client-core/
-# cp ./node_modules/@magickml/server-db/src/lib/prisma/client-core/libquery_engine-linux-musl-openssl-3.0.x.so.node .output/server/node_modules/@magickml/server-db/src/lib/prisma/client-core/
-# cp ./node_modules/@magickml/server-db/src/lib/prisma/client-core/* .output/server/node_modules/@magickml/server-db/src/lib/prisma/client-core/
-
-# cp -R ./node_modules/@magickml/server-db/src/lib/prisma/client-core/* .output/server/node_modules/@magickml/server-db/src/lib/prisma/client-core/
-# find ./node_modules/@magickml/server-db/src/lib/prisma/client-core/ -type f -not -name "*.prisma" -exec file {} + | grep -i "elf\|shared object" | awk '{print $1}' | sed 's/:$//' | xargs -I {} cp {} .output/server/node_modules/@magickml/server-db/src/lib/prisma/client-core/
