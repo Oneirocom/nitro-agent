@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build": "npm run init && nitro build",
+    "build": "nitro build",
     "init": "grimoire init",
     "dev": "nitro dev",
     "prepare": "nitro prepare",
