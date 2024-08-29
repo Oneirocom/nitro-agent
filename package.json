@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@keyv/postgres": "^1.4.11",
-    "@magickml/nitro-module": "0.0.12-22",
+    "@magickml/nitro-module": "0.0.12-24",
     "@prisma/client": "^5.18.0"
   },
   "engines": {
