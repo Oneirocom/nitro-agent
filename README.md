@@ -142,26 +142,20 @@ Once you have a user, you can use the user's ID as the `sender` and the user's I
 You will need to fill in the following environment variables. Duplicate the `.env.example` file and rename it to `.env`. Fill in your values.
 
 ```bash
-CREDENTIALS_ENCRYPTION_KEY=your_encryption_key
-PINECONE_API_KEY=your_pinecone_api_key
 KEYWORDS_API_KEY=your_keywords_api_key
 KEYWORDS_API_URL=http://localhost:3000
 REDIS_URL=redis://localhost:6379
 DATABASE_URL=postgresql://user:password@localhost:5432/mydb
 AGENT_EMBEDDER_API_KEY=your_agent_embedder_api_key
-NEXT_PUBLIC_EMBEDDER_SERVER_URL=http://localhost:5000
-NEXT_AWS_REGION=your_aws_region
+NEXT_PUBLIC_EMBEDDER_SERVER_URL=https://embedder-prod-production.up.railway.app/api
 ```
 
-- `CREDENTIALS_ENCRYPTION_KEY`: Key used for encrypting sensitive data
-- `PINECONE_API_KEY`: API key for Pinecone vector database
 - `KEYWORDS_API_KEY`: API key for the keywords service
 - `KEYWORDS_API_URL`: URL for the keywords service
 - `REDIS_URL`: Redis connection string
 - `DATABASE_URL`: PostgreSQL connection string
 - `AGENT_EMBEDDER_API_KEY`: API key for accessing your agent's knowledge
 - `NEXT_PUBLIC_EMBEDDER_SERVER_URL`: URL for the embedder service
-- `NEXT_AWS_REGION`: AWS region for your deployment (if applicable)
 
 To obtain your `AGENT_EMBEDDER_API_KEY`:
 
