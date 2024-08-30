@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build": "npm run init && nitro build",
+    "build": "nitro build",
     "init": "grimoire init",
     "dev": "nitro dev",
     "prepare": "nitro prepare",
@@ -16,10 +16,10 @@
   },
   "dependencies": {
     "@keyv/postgres": "^1.4.11",
-    "@magickml/nitro-module": "0.0.12-22",
+    "@magickml/nitro-module": "0.0.12-24",
     "@prisma/client": "^5.18.0"
   },
   "engines": {
-    "node": "18.18.0"
+    "node": "20.0.0"
   }
 }
