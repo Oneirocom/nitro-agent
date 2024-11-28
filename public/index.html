@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Chat Client</title>
+    <style>
+      .chat-container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+      }
+      .chat-history {
+        height: 400px;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        padding: 10px;
+        margin-bottom: 20px;
+      }
+      .message {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .user-message {
+        background-color: #e3f2fd;
+        margin-left: 20%;
+      }
+      .ai-message {
+        background-color: #f5f5f5;
+        margin-right: 20%;
+      }
+      .input-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      input {
+        padding: 8px;
+      }
+      button {
+        padding: 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <div class="chat-history" id="chatHistory"></div>
+      <form class="input-form" id="chatForm">
+        <input type="text" id="userId" placeholder="User ID" required />
+        <input
+          type="text"
+          id="prompt"
+          placeholder="Enter your message"
+          required
+        />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+
+    <script>
+      const chatForm = document.getElementById("chatForm");
+      const chatHistory = document.getElementById("chatHistory");
+      const userIdInput = document.getElementById("userId");
+      const promptInput = document.getElementById("prompt");
+
+      // Generate a random UUID for initial user ID
+      userIdInput.value = crypto.randomUUID();
+
+      chatForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const userId = userIdInput.value;
+        const prompt = promptInput.value;
+
+        // Add user message to chat
+        addMessageToChat("user", prompt);
+
+        try {
+          const response = await fetch("http://localhost:3000", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              prompt: prompt,
+              userid: userId,
+            }),
+          });
+
+          const data = await response.json();
+
+          // Add AI response to chat
+          if (data.generated && data.generated.status === "success") {
+            const aiMessage = data.generated.data.content;
+            addMessageToChat("ai", aiMessage);
+          }
+
+          // Clear prompt input
+          promptInput.value = "";
+        } catch (error) {
+          console.error("Error:", error);
+          addMessageToChat("system", "Error sending message");
+        }
+      });
+
+      function addMessageToChat(sender, message) {
+        const messageDiv = document.createElement("div");
+        messageDiv.classList.add("message");
+        messageDiv.classList.add(
+          sender === "user" ? "user-message" : "ai-message"
+        );
+        messageDiv.textContent = message;
+
+        chatHistory.appendChild(messageDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+      }
+    </script>
+  </body>
+</html>

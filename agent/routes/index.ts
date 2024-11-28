@@ -1,72 +1,109 @@
 import { defineEventHandler } from "h3";
 
 export default defineEventHandler(async (event) => {
+  // Add CORS headers
+  setResponseHeaders(event, {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  });
+
+  // Handle preflight requests
+  if (event.method === "OPTIONS") {
+    return { ok: true };
+  }
+
+  // Ensure the request method is POST
+  if (event.method !== "POST") {
+    return createError({
+      statusCode: 405,
+      statusMessage: "Method Not Allowed",
+    });
+  }
+  // Read the request body
+  const body = await readBody(event);
+  const { prompt, userid } = body;
+
   const nitro = useNitroApp();
   console.log("Starting event handler");
 
   // Function to emit an event and handle the response
-  const testSpell = async (expectedContent) => {
-    console.log(`Testing spell with expected content: "${expectedContent}"`);
+  const testSpell = async (contentToSend) => {
+    console.log(`Testing spell with contentToSend: "${contentToSend}"`);
     return new Promise((resolve, reject) => {
-      // Set a listener for the 'messageReceived' event
+      // Create a channel with the userid
+      const channelId = userid; // Keep track of the channel ID
+      const channel = nitro.agent.channel(channelId);
+      let isResolved = false;
+
+      const cleanup = () => {
+        channel.removeAllListeners("messageReceived");
+        channel.removeAllListeners("error");
+        isResolved = true;
+      };
+
       const messageHandler = (response) => {
-        console.log("Received message:", response);
+        console.log(`Received message on channel ${channelId}:`, response);
+        if (isResolved) return;
+
         try {
-          // Check if the response matches the expected content
-          if (response.data.content === expectedContent) {
-            console.log("Response matches expected content");
-            // Unsubscribe from further messageReceived events for this test
-            nitro.agent.off("messageReceived", messageHandler);
-            resolve({
-              status: "success",
-              data: response.data,
-              event: response.event,
-            });
-          } else {
-            console.log("Response does not match expected content");
-          }
+          cleanup();
+          resolve({
+            status: "success",
+            data: response.data,
+            event: response.event,
+          });
         } catch (error) {
-          console.error("Error in message handler:", error);
-          nitro.agent.off("messageReceived", messageHandler);
+          console.error(
+            `Error in message handler for channel ${channelId}:`,
+            error
+          );
+          cleanup();
           reject(error);
         }
       };
 
-      // Attach the message handler
-      nitro.agent.on("messageReceived", messageHandler);
-      console.log("Message handler attached");
+      // Attach listeners
+      console.log(`Attaching listeners to channel ${channelId}`);
+      channel.on("messageReceived", messageHandler);
+      channel.on("error", (error) => {
+        console.error(`Error on channel ${channelId}:`, error);
+        cleanup();
+        reject(error);
+      });
 
-      // Emit the event to trigger the spell
-      console.log("Emitting trigger event");
-      nitro.agent.emit(
-        "message",
-        nitro.agent.formatEvent({
-          content: "trigger event", // The content that triggers the spell
-          sender: "user",
-          channel: "agent",
-          eventName: "message",
-          skipPersist: true,
-          rawData: "trigger event",
-        })
-      );
+      try {
+        // Emit the event - make sure channel ID is consistent
+        console.log(`Emitting message to agent on channel ${channelId}`);
+        channel.emitToAgent(
+          "message",
+          nitro.agent.formatEvent({
+            content: contentToSend,
+            sender: userid,
+            channel: channelId, // Use the same channelId here
+            eventName: "message",
+            skipPersist: true,
+            rawData: contentToSend,
+            metadata: {
+              sessionId: channelId, // Use channelId for session
+              timestamp: new Date().toISOString(),
+            },
+          })
+        );
+      } catch (error) {
+        console.error(`Error emitting event on channel ${channelId}:`, error);
+        cleanup();
+        reject(error);
+      }
     });
   };
+  console.log("userid/prompt", userid, prompt);
 
+  let result = "";
   try {
-    console.log("Starting tests");
-    // Test the first spell (assuming it responds with "Hello World")
-    const result1 = await testSpell("Hello World");
-    console.log("First test result:", result1);
-
-    // Test the second spell (assuming it responds with "done")
-    const result2 = await testSpell("done");
-    console.log("Second test result:", result2);
-
-    console.log("All tests completed successfully");
-    return {
-      status: "all tests passed",
-      results: [result1, result2],
-    };
+    console.log("Starting spell");
+    result = (await testSpell(prompt)) as string;
+    console.log("spell result:", result);
   } catch (error) {
     console.error("Test failed:", error);
     return {
@@ -74,4 +111,10 @@ export default defineEventHandler(async (event) => {
       error: error,
     };
   }
+
+  return {
+    message: "Data received successfully",
+    prompt: prompt,
+    generated: result,
+  };
 });
