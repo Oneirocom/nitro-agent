@@ -49,56 +49,105 @@ We will also be working to add some support for public variables, and multiple a
 
 ## Interacting with Your Agent
 
-The Agent is available in the Nitro runtime, allowing interaction through various Nitro library abstractions like routes and websockets. See the `examples` folder for reference implementations.
+The Agent is available in the Nitro runtime, allowing interaction through various Nitro library abstractions like routes and websockets. The agent uses a channel-based system for handling conversations, where each channel represents a unique conversation context.
 
-Here's a simple example of how to interact with your agent using a Nitro endpoint:
+Here's an example of how to interact with your agent using channels:
 
 ```typescript
-import { defineEventHandler } from "h3";
-
 export default defineEventHandler(async (event) => {
-  const nitro = useNitroApp();
   const body = await readBody(event);
+  const { prompt, userid } = body;
+  const nitro = useNitroApp();
 
-  // Function to send a message to the agent and wait for a response
-  const sendMessageToAgent = (content: string) => {
-    return new Promise((resolve) => {
-      const messageHandler = (response) => {
-        nitro.agent.off("messageReceived", messageHandler);
-        resolve(response.data.content);
-      };
+  // Function to communicate with agent through a channel
+  const sendMessageToAgent = async (content, channelId) => {
+    return new Promise((resolve, reject) => {
+      // Create a channel for this conversation
+      const channel = nitro.agent.channel(channelId);
 
-      nitro.agent.on("messageReceived", messageHandler);
+      // Set up message handler
+      channel.on("messageReceived", (response) => {
+        channel.removeAllListeners();
+        resolve({
+          status: "success",
+          data: response.data,
+          event: response.event,
+        });
+      });
 
-      nitro.agent.emit(
+      // Handle errors
+      channel.on("error", (error) => {
+        channel.removeAllListeners();
+        reject(error);
+      });
+
+      // Send message through channel
+      channel.emitToAgent(
         "message",
         nitro.agent.formatEvent({
           content: content,
-          sender: "user",
-          channel: "chat",
+          sender: channelId,
+          channel: channelId,
           eventName: "message",
-          skipPersist: false,
+          skipPersist: true,
           rawData: content,
+          metadata: {
+            sessionId: channelId,
+            timestamp: new Date().toISOString(),
+          },
         })
       );
     });
   };
 
   try {
-    const userMessage = body.message;
-    const agentResponse = await sendMessageToAgent(userMessage);
-
+    const result = await sendMessageToAgent(prompt, userid);
     return {
-      status: "success",
-      message: agentResponse,
+      message: "Data received successfully",
+      prompt: prompt,
+      generated: result,
     };
   } catch (error) {
     return {
       status: "error",
-      message: "Failed to process the message",
-      error: error.message,
+      error: error,
     };
   }
+});
+```
+
+### Channel-Based Communication
+
+The agent now uses a channel system for managing conversations:
+
+- Each conversation gets its own channel, typically identified by a user ID
+- Channels provide isolated communication contexts
+- Messages and responses are scoped to their specific channels
+- Channels automatically clean up listeners after message handling
+
+Key concepts:
+
+- `nitro.agent.channel(channelId)`: Creates/gets a channel for a specific conversation
+- `channel.emitToAgent()`: Sends a message through the channel
+- `channel.on("messageReceived")`: Listens for responses on the channel
+- Each channel should handle its own cleanup by removing listeners after use
+
+### Message Format
+
+When sending messages to the agent, use the following format:
+
+```typescript
+nitro.agent.formatEvent({
+  content: "Your message here",
+  sender: "user_id",
+  channel: "channel_id",
+  eventName: "message",
+  skipPersist: true, // Set to false if you want to persist messages
+  rawData: "Your message here",
+  metadata: {
+    sessionId: "channel_id",
+    timestamp: new Date().toISOString(),
+  },
 });
 ```
 
